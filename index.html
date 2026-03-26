@@ -256,7 +256,7 @@
     }
 
     function enviarWhatsApp() {
-      let mensaje = "Hola, quiero pedir:%0A";
+      let mensaje = "¡Hola CleanMaster! 👋 Pedido:%0A%0A";
       let total = 0;
 
       document.querySelectorAll('.card').forEach(card => {
@@ -266,7 +266,7 @@
           const nombre = card.querySelector('h4').innerText;
           const precio = parseInt(card.querySelector('.price').dataset.valor);
 
-          mensaje += `${nombre} x${cantidad}%0A`;
+          mensaje += `✅ ${nombre} x${cantidad} - $${(precio * cantidad).toLocaleString('es-CO')}%0A`;
           total += precio * cantidad;
         }
       });
