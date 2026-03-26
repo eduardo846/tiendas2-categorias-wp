@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanMaster Premium</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>✨ CleanMaster Premium</h1>
+    <p>Calidad profesional para tu hogar</p>
+  </header>
+
+  <div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="filter-section">
+        <h3>Categorías</h3>
+        <ul>
+          <li class="category-item active" onclick="filtrarProductos('all', event)">Todos</li>
+          <li class="category-item" onclick="filtrarProductos('desinfectante', event)">Desinfectantes</li>
+          <li class="category-item" onclick="filtrarProductos('lavanderia', event)">Lavandería</li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <h3>Subcategoría</h3>
+        <ul id="subcategorias">
+          <li class="category-item">Selecciona una categoría</li>
+        </ul>
+      </div>
+
+      <!-- CARRITO -->
+      <div class="cart-summary">
+        <h4>🛒 Tu Pedido</h4>
+        <div id="lista-resumen">Vacío</div>
+        <hr>
+        <div class="total-compra">Total: <span id="total-precio">$0</span></div>
+
+        <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar pedido</button>
+        <button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
+      </div>
+
+    </aside>
+
+    <!-- PRODUCTOS -->
+    <main class="products">
+
+      <!-- PRODUCTO 1 -->
+      <div class="card" data-category="desinfectante" data-subcategory="aroma" data-nombre="Desinfectante Mandarina"
+        data-descripcion="Elimina el 99% de bacterias, aroma cítrico duradero.">
+
+        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952">
+
+        <div class="card-content">
+          <h4>Desinfectante Mandarina</h4>
+          <div class="price" data-valor="12500">$12.500</div>
+
+          <button class="btn-info" onclick="abrirModalDesdeCard(this)">
+            Ver características
+          </button>
+
+          <div class="qty-selector">
+            <button onclick="cambiarCant('p1', -1)">-</button>
+            <input id="p1" value="0" readonly>
+            <button onclick="cambiarCant('p1', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTO 2 -->
+      <div class="card" data-category="desinfectante" data-subcategory="aroma" data-nombre="Desinfectante Papaya"
+        data-descripcion="Fragancia tropical intensa, limpieza profunda.">
+
+        <img src="https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec">
+
+        <div class="card-content">
+          <h4>Desinfectante Papaya</h4>
+          <div class="price" data-valor="13000">$13.000</div>
+
+          <button class="btn-info" onclick="abrirModalDesdeCard(this)">
+            Ver características
+          </button>
+
+          <div class="qty-selector">
+            <button onclick="cambiarCant('p2', -1)">-</button>
+            <input id="p2" value="0" readonly>
+            <button onclick="cambiarCant('p2', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTO 3 -->
+      <div class="card" data-category="lavanderia" data-subcategory="liquido" data-nombre="Detergente 3L"
+        data-descripcion="Alto rendimiento, ideal para ropa blanca y color.">
+
+        <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c">
+
+        <div class="card-content">
+          <h4>Detergente 3L</h4>
+          <div class="price" data-valor="35000">$35.000</div>
+
+          <button class="btn-info" onclick="abrirModalDesdeCard(this)">
+            Ver características
+          </button>
+
+          <div class="qty-selector">
+            <button onclick="cambiarCant('p3', -1)">-</button>
+            <input id="p3" value="0" readonly>
+            <button onclick="cambiarCant('p3', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="cerrar" onclick="cerrarModal()">×</span>
+      <h3 id="modal-titulo"></h3>
+      <p id="modal-texto"></p>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+
+    let categoriaActiva = "all";
+    let subcategoriaActiva = "all";
+
+    /* FILTROS */
+    function filtrarProductos(categoria, e) {
+      categoriaActiva = categoria;
+      subcategoriaActiva = "all";
+
+      document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+      e.target.classList.add('active');
+
+      generarSubcategorias();
+      aplicarFiltros();
+    }
+
+    function generarSubcategorias() {
+      const productos = document.querySelectorAll('.card');
+      const contenedor = document.getElementById('subcategorias');
+
+      let subcats = new Set();
+
+      productos.forEach(card => {
+        if (card.dataset.category === categoriaActiva) {
+          subcats.add(card.dataset.subcategory);
+        }
+      });
+
+      if (categoriaActiva === "all") {
+        contenedor.innerHTML = `<li class="category-item">Selecciona una categoría</li>`;
+        return;
+      }
+
+      let html = `<li class="category-item active" onclick="filtrarSubcategoria('all', event)">Todos</li>`;
+
+      subcats.forEach(sub => {
+        html += `<li class="category-item" onclick="filtrarSubcategoria('${sub}', event)">
+      ${sub.charAt(0).toUpperCase() + sub.slice(1)}
+    </li>`;
+      });
+
+      contenedor.innerHTML = html;
+    }
+
+    function filtrarSubcategoria(sub, e) {
+      subcategoriaActiva = sub;
+
+      document.querySelectorAll('#subcategorias .category-item').forEach(el => el.classList.remove('active'));
+      e.target.classList.add('active');
+
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      document.querySelectorAll('.card').forEach(card => {
+        const matchCat = categoriaActiva === "all" || card.dataset.category === categoriaActiva;
+        const matchSub = subcategoriaActiva === "all" || card.dataset.subcategory === subcategoriaActiva;
+
+        card.style.display = (matchCat && matchSub) ? "block" : "none";
+      });
+    }
+
+    /* MODAL */
+    function abrirModalDesdeCard(btn) {
+      const card = btn.closest('.card');
+
+      document.getElementById('modal-titulo').innerText = card.dataset.nombre;
+      document.getElementById('modal-texto').innerText = card.dataset.descripcion;
+
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    /* CARRITO */
+    function cambiarCant(id, cambio) {
+      const input = document.getElementById(id);
+      let val = parseInt(input.value) + cambio;
+      if (val < 0) val = 0;
+      input.value = val;
+      actualizarTotal();
+    }
+
+    function eliminarDelCarrito(id) {
+      document.getElementById(id).value = 0;
+      actualizarTotal();
+    }
+
+    function vaciarCarrito() {
+      document.querySelectorAll('.qty-selector input').forEach(i => i.value = 0);
+      actualizarTotal();
+    }
+
+    function actualizarTotal() {
+      let total = 0;
+      let html = "";
+
+      document.querySelectorAll('.card').forEach(card => {
+        const nombre = card.querySelector('h4').innerText;
+        const precio = parseInt(card.querySelector('.price').dataset.valor);
+        const input = card.querySelector('input');
+        const cantidad = parseInt(input.value);
+
+        if (cantidad > 0) {
+          total += precio * cantidad;
+
+          html += `
+      <div class="item-resumen">
+        <span>${nombre} x${cantidad}</span>
+        <button onclick="eliminarDelCarrito('${input.id}')">❌</button>
+      </div>`;
+        }
+      });
+
+      document.getElementById('lista-resumen').innerHTML = html || "Vacío";
+      document.getElementById('total-precio').innerText = `$${total.toLocaleString('es-CO')}`;
+    }
+
+    function enviarWhatsApp() {
+      let mensaje = "Hola, quiero pedir:%0A";
+      let total = 0;
+
+      document.querySelectorAll('.card').forEach(card => {
+        const cantidad = parseInt(card.querySelector('input').value);
+
+        if (cantidad > 0) {
+          const nombre = card.querySelector('h4').innerText;
+          const precio = parseInt(card.querySelector('.price').dataset.valor);
+
+          mensaje += `${nombre} x${cantidad}%0A`;
+          total += precio * cantidad;
+        }
+      });
+
+      mensaje += `Total: $${total}`;
+      window.open(`https://wa.me/573505894956?text=${mensaje}`);
+    }
+
+  </script>
+
+</body>
+
+</html>
